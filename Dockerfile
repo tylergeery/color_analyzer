@@ -1,6 +1,7 @@
 FROM rustlang/rust:nightly
 
-RUN cargo install cargo-watch
+RUN rustup update && \
+    cargo install cargo-watch
 
 WORKDIR /usr/src/app
 
