@@ -1,7 +1,7 @@
 #![feature(plugin, proc_macro_hygiene, decl_macro, custom_derive)]
 
 #[macro_use] extern crate rocket;
-#[macro_use] extern crate rocket_contrib;
+extern crate rocket_contrib;
 
 use std::path::Path;
 use rocket::response::NamedFile;
@@ -10,6 +10,7 @@ use rocket_contrib::json::Json;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;
+extern crate reqwest;
 
 #[derive(FromForm, Deserialize, Serialize)]
 struct URLRequest {
@@ -37,12 +38,21 @@ fn submit() -> &'static str {
 }
 
 #[post("/", format = "application/json", data="<request>")]
-fn analyze(request: Json<URLRequest>) -> Json<URLRequest> {
+fn analyze(request: Json<URLRequest>) -> &'static str {
     // get file contents from url u
-    request
+    let url = request.into_inner().url;
+    let mut result = reqwest::get(&url[..]).unwrap();
+    let text = result.text().unwrap();
+    let bytes = text.as_bytes();
     // analyze Image
 
+    let image = image::load_from_memory(bytes).unwrap();
+    let pixels = image.to_rgba().pixels();
     // output results
+    for pix in pixels {
+        println!("Got: {}", pix.color_type());
+    }
+    "yep"
 }
 
 fn main() {
