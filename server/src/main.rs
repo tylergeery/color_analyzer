@@ -2,6 +2,7 @@
 
 #[macro_use] extern crate rocket;
 extern crate rocket_contrib;
+extern crate image;
 
 use std::path::Path;
 use rocket::response::NamedFile;
@@ -41,18 +42,38 @@ fn submit() -> &'static str {
 fn analyze(request: Json<URLRequest>) -> &'static str {
     // get file contents from url u
     let url = request.into_inner().url;
-    let mut result = reqwest::get(&url[..]).unwrap();
-    let text = result.text().unwrap();
-    let bytes = text.as_bytes();
-    // analyze Image
+    println!("url: {}", &url[..]);
 
-    let image = image::load_from_memory(bytes).unwrap();
-    let pixels = image.to_rgba().pixels();
-    // output results
-    for pix in pixels {
-        println!("Got: {}", pix.color_type());
+    let mut result = reqwest::get(&url[..]).unwrap();
+    let mut buf: Vec<u8> = vec![];
+    result.copy_to(&mut buf).unwrap();
+    //println!("result: {:?}", buf);
+
+    // analyze Image
+    let image = image::load_from_memory(&buf).unwrap();
+
+    // Iterate over all pixels in the image.
+    // println!("Pixel count: {}", image.to_rgba().pixels().count());
+    let mut red: u64 = 0;
+    let mut green: u64 = 0;
+    let mut blue: u64 = 0;
+
+    for img in image.to_rgba().pixels() {
+        //println!("image data: {:?}", img);
+        red += u64::from(img.data[0]);
+        green += u64::from(img.data[1]);
+        blue += u64::from(img.data[2]);
+
     }
-    "yep"
+
+    println!("red = {}, green = {}, blue = {}", red, green, blue);
+    if red > green && red > blue {
+        "red"
+    } else if green > red && green > blue {
+        "green"
+    } else {
+        "blue"
+    }
 }
 
 fn main() {
