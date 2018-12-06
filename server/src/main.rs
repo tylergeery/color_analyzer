@@ -4,14 +4,18 @@
 extern crate rocket_contrib;
 extern crate image;
 
-use std::path::Path;
-use rocket::response::NamedFile;
-use rocket_contrib::json::Json;
-
 #[macro_use]
 extern crate serde_derive;
 extern crate serde;
 extern crate reqwest;
+
+mod analyze;
+mod colors;
+
+use std::collections::HashMap;
+use std::path::Path;
+use rocket::response::NamedFile;
+use rocket_contrib::json::Json;
 
 #[derive(FromForm, Deserialize, Serialize)]
 struct URLRequest {
@@ -39,7 +43,7 @@ fn submit() -> &'static str {
 }
 
 #[post("/", format = "application/json", data="<request>")]
-fn analyze(request: Json<URLRequest>) -> &'static str {
+fn predict(request: Json<URLRequest>) -> &'static str {
     // get file contents from url u
     let url = request.into_inner().url;
     println!("url: {}", &url[..]);
@@ -47,33 +51,15 @@ fn analyze(request: Json<URLRequest>) -> &'static str {
     let mut result = reqwest::get(&url[..]).unwrap();
     let mut buf: Vec<u8> = vec![];
     result.copy_to(&mut buf).unwrap();
-    //println!("result: {:?}", buf);
 
     // analyze Image
     let image = image::load_from_memory(&buf).unwrap();
+    let mut colorMap: HashMap<String, Vec<u64>> = HashMap::new();
 
-    // Iterate over all pixels in the image.
-    // println!("Pixel count: {}", image.to_rgba().pixels().count());
-    let mut red: u64 = 0;
-    let mut green: u64 = 0;
-    let mut blue: u64 = 0;
+    colors::parse(&mut colorMap);
+    let colorResult = analyze::predict(image, colorMap);
 
-    for img in image.to_rgba().pixels() {
-        //println!("image data: {:?}", img);
-        red += u64::from(img.data[0]);
-        green += u64::from(img.data[1]);
-        blue += u64::from(img.data[2]);
-
-    }
-
-    println!("red = {}, green = {}, blue = {}", red, green, blue);
-    if red > green && red > blue {
-        "red"
-    } else if green > red && green > blue {
-        "green"
-    } else {
-        "blue"
-    }
+    &colorResult[..]
 }
 
 fn main() {
@@ -81,6 +67,6 @@ fn main() {
         .mount("/", routes![index])
         .mount("/upload", routes![upload])
         .mount("/submit", routes![submit])
-        .mount("/analyze", routes![analyze])
+        .mount("/predict", routes![predict])
         .launch();
 }
