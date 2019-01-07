@@ -6,6 +6,8 @@ extern crate image;
 
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate serde_json;
 extern crate serde;
 extern crate reqwest;
 
@@ -43,7 +45,7 @@ fn submit() -> &'static str {
 }
 
 #[post("/", format = "application/json", data="<request>")]
-fn predict(request: Json<URLRequest>) -> &'static str {
+fn predict(request: Json<URLRequest>) -> String {
     // get file contents from url u
     let url = request.into_inner().url;
     println!("url: {}", &url[..]);
@@ -54,12 +56,16 @@ fn predict(request: Json<URLRequest>) -> &'static str {
 
     // analyze Image
     let image = image::load_from_memory(&buf).unwrap();
-    let mut colorMap: HashMap<String, Vec<u64>> = HashMap::new();
+    let mut color_map: HashMap<String, Vec<u64>> = HashMap::new();
+    let mut predictions: Vec<analyze::Prediction> = Vec::new();
 
-    colors::parse(&mut colorMap);
-    let colorResult = analyze::predict(image, colorMap);
+    colors::parse(&mut color_map);
+    analyze::predict(image, color_map, &mut predictions);
 
-    &colorResult[..]
+    let json = json!(predictions);
+    let json_str = json.to_string();
+
+    json_str
 }
 
 fn main() {

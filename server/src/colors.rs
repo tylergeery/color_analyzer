@@ -5,8 +5,7 @@ use std::fs::File;
 use std::io::Read;
 
 pub fn parse(colors: &mut HashMap<String, Vec<u64>>) {
-    // TODO: parse JSON file
-    let mut file = File::open("colors.json").unwrap();
+    let mut file = File::open("/usr/src/app/src/colors.json").unwrap();
     let mut data = String::new();
     file.read_to_string(&mut data).unwrap();
 
