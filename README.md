@@ -2,12 +2,12 @@
 Simple REST API for image color analysis
 
 ## Features
-- Allows for image url submission at [#TODO](/submit)
+- Allows for image url submission at [#TODO](/predict)
+- Parses base hex colors from server/src/colors.json
+- Output ordered list of colors based on individual pixel analysis
 
 ## TODO
-- Allows for image upload at [#TODO](/upload)
-- Parse colors.json file for allowed image colors
-- Output ordered list of colors based on individual pixel analysis
+- Allow for image file upload at [#TODO](/upload)
 - Use KNN approach for determing dominant color
 
 ## Up and Running

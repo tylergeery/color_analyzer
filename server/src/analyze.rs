@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use image::DynamicImage;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Prediction {
     name: String,
     score: f64
@@ -47,8 +47,8 @@ pub fn predict(
             score: (*results.get(color).unwrap() as f64) / (pixel_count as f64)
         });
     }
-    // TODO: sort predictions before returning
-    println!("results: {:?}", results);
+
+    predictions.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap());
 }
 
 fn dist(base: u64, supplied: u64) -> u64 {
