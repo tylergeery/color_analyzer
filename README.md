@@ -7,7 +7,8 @@ Simple REST API for image color analysis
 - Output ordered list of colors based on individual pixel analysis
 
 ## TODO
-- Allow for image file upload at [#TODO](/upload)
+- Allow for image file upload or URL input at [#TODO](/upload)
+- Parse pixels from file type image uploads
 - Use KNN approach for determing dominant color
 
 ## Up and Running
