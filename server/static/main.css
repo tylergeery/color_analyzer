@@ -1,0 +1,33 @@
+body {
+    background: #EEEEEE;
+}
+
+.ica-main {
+    width: 80%;
+    min-width: 400px;
+    max-width: 100%;
+    margin: auto;
+}
+
+.ica-main h1 {
+    text-align: center;
+}
+
+.ica-container-holder {
+    display: flex;
+    flex-direction: row;
+}
+
+.ica-split-container {
+    margin: auto;
+    padding: 1em;
+    width: 50%;
+    text-align: center;
+}
+
+.ica-split-container label,
+.ica-split-container input {
+    width: 90%;
+    max-width: 300px;
+    font-size: 1.2em;
+}
