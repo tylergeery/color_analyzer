@@ -18,6 +18,8 @@ use std::collections::HashMap;
 use std::path::Path;
 use rocket::response::NamedFile;
 use rocket_contrib::json::Json;
+use rocket_contrib::serve::StaticFiles;
+use rocket_contrib::templates::Template;
 
 #[derive(FromForm, Deserialize, Serialize)]
 struct URLRequest {
@@ -70,7 +72,9 @@ fn predict(request: Json<URLRequest>) -> String {
 
 fn main() {
     rocket::ignite()
+        .attach(Template::fairing())
         .mount("/", routes![index])
+        .mount("/static", StaticFiles::from("static"))
         .mount("/upload", routes![upload])
         .mount("/submit", routes![submit])
         .mount("/predict", routes![predict])
