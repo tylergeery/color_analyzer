@@ -7,38 +7,35 @@ class FormHandler {
                 e.preventDefault();
 
                 this.handleSubmit(
-                    this.gatherURL(),
-                    this.gatherData(),
-                    this.getContentType()
+                    this.gatherURL()
                 );
             });
     }
 
     gatherData() {
-        // TODO: overwrite with child class
+        return Promise.resolve();
     }
 
     gatherURL() {
         return this.$form.attr('action');
     }
 
-    getContentType() {
-        return this.$form.attr('enctype') || 'application/json';
-    }
+    handleSubmit(url) {
+        this.gatherData()
+            .then((data) => {
+                $.ajax({
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data,
+                    url
+                })
+                    .done((response) => {
+                        this.handleResults(response);
+                    })
 
-    handleSubmit(url, data, contentType) {
-        $.ajax({
-            method: 'POST',
-            data,
-            contentType,
-            url
-        })
-            .done((response) => {
-                this.handleResults(response);
-            })
-
-            .fail((error, first, third) => {
-                console.log('error: ', error, first, third);
+                    .fail((error, first, third) => {
+                        console.log('error: ', error, first, third);
+                    });
             });
     }
 
@@ -58,19 +55,24 @@ class FormHandler {
 
 class URLFormHandler extends FormHandler {
     gatherData() {
-        return JSON.stringify({
+        return Promise.resolve(JSON.stringify({
             url: this.$form.find('input[name="url"]').val()
-        });
+        }));
     }
 }
 
 class FileUploadFormHandler extends FormHandler {
     gatherData() {
-        let fd = new FormData();
+        return new Promise((resolve, reject) => {
+            var reader = new FileReader();
+            reader.onload = (readerEvt) => {
+                console.log('contents:', readerEvt.target.result);
+                let data = btoa(readerEvt.target.result);
 
-        fd.append('image', this.$form.find('input')[0].files);
-
-        return fd;
+                resolve(JSON.stringify({ file: data }));
+            };
+            reader.readAsBinaryString(this.$form.find('input')[0].files[0]);
+        });
     }
 }
 

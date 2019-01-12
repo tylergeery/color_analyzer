@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Tyler G <tyler@geerydev.com>"]
 
 [dependencies]
+base64 = "*"
 image = "*"
 reqwest = "*"
 rocket = "0.4.0-rc.1"

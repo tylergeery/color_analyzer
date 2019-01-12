@@ -10,6 +10,7 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate serde;
 extern crate reqwest;
+extern crate base64;
 
 mod analyze;
 mod colors;
@@ -26,6 +27,11 @@ struct URLRequest {
     url: String
 }
 
+#[derive(FromForm, Deserialize, Serialize, Debug)]
+struct FileRequest {
+    file: String
+}
+
 #[get("/")]
 fn index() -> &'static str {
     "Welcome to the Image Color Analyzer API!"
@@ -36,14 +42,24 @@ fn upload() -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join("index.html")).ok()
 }
 
-#[post("/", format="multipart/form-data")]
-fn submit() -> &'static str {
-    // parse multi-part form
+#[post("/", format = "application/json", data="<request>")]
+fn submit(request: Json<FileRequest>) -> String {
+    // get file contents from base64 encoded image
+    let contents = request.file.clone();
+    let buf: Vec<u8> = base64::decode(&contents.into_bytes()).unwrap();
 
     // analyze Image
+    let image = image::load_from_memory(&buf).unwrap();
+    let mut color_map: HashMap<String, Vec<u64>> = HashMap::new();
+    let mut predictions: Vec<analyze::Prediction> = Vec::new();
 
-    // output results
-    "TODO"
+    colors::parse(&mut color_map);
+    analyze::predict(image, color_map, &mut predictions);
+
+    let json = json!(predictions);
+    let json_str = json.to_string();
+
+    json_str
 }
 
 #[post("/", format = "application/json", data="<request>")]
