@@ -46,7 +46,7 @@ class FormHandler {
         $resultsHolder.html("");
 
         predictions.map((p) => {
-            let html = `<div style='background-color: ${p.name}'>${p.name} (${p.score})</div>`;
+            let html = `<div style='background-color: ${p.hex}'>${p.name} (${p.score})</div>`;
 
             $resultsHolder.append(html);
         });

@@ -1,15 +1,17 @@
 use std::collections::HashMap;
 use image::DynamicImage;
+use colors::Color;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Prediction {
+    hex: String,
     name: String,
     score: f64
 }
 
 pub fn predict(
     image: DynamicImage,
-    colors: HashMap<String, Vec<u64>>,
+    colors: HashMap<String, Color>,
     predictions: &mut Vec<Prediction>
 ) {
     let mut results: HashMap<String, u64> = HashMap::new();
@@ -26,7 +28,7 @@ pub fn predict(
 
         for key in colors.keys() {
             let color = colors.get(key).unwrap();
-            let euclidean = (dist(red, color[0])^2) + (dist(green, color[1])^2) + (dist(blue, color[2])^2);
+            let euclidean = (dist(red, color.rgb[0])^2) + (dist(green, color.rgb[1])^2) + (dist(blue, color.rgb[2])^2);
             let value = f64::sqrt(euclidean as f64);
 
             if value < curr {
@@ -43,6 +45,7 @@ pub fn predict(
 
     for color in results.keys() {
         predictions.push(Prediction {
+            hex: colors.get(color).unwrap().hex.clone(),
             name: color.clone(),
             score: (*results.get(color).unwrap() as f64) / (pixel_count as f64)
         });

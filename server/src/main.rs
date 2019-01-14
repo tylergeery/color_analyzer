@@ -50,7 +50,7 @@ fn submit(request: Json<FileRequest>) -> String {
 
     // analyze Image
     let image = image::load_from_memory(&buf).unwrap();
-    let mut color_map: HashMap<String, Vec<u64>> = HashMap::new();
+    let mut color_map: HashMap<String, colors::Color> = HashMap::new();
     let mut predictions: Vec<analyze::Prediction> = Vec::new();
 
     colors::parse(&mut color_map);
@@ -74,7 +74,7 @@ fn predict(request: Json<URLRequest>) -> String {
 
     // analyze Image
     let image = image::load_from_memory(&buf).unwrap();
-    let mut color_map: HashMap<String, Vec<u64>> = HashMap::new();
+    let mut color_map: HashMap<String, colors::Color> = HashMap::new();
     let mut predictions: Vec<analyze::Prediction> = Vec::new();
 
     colors::parse(&mut color_map);
