@@ -1,5 +1,10 @@
 # color_analyzer
-Simple REST API for image color analysis
+Simple REST API for image color analysis.
+
+This is a first attempt at using Rust, and largely a learning experience. Please feel free to contribute.
+
+## Production
+Feel free to test out the project [here](#TODO)
 
 ## Features
 - Submit a hosted URL or file upload at [/upload](/upload)

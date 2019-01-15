@@ -31,3 +31,46 @@ body {
     max-width: 300px;
     font-size: 1.2em;
 }
+
+.ica-skinny-container {
+    width: 50%;
+    min-width: 300px;
+    margin: auto;
+    overflow: auto;
+}
+
+.ica-results-image-holder {
+    text-align: center;
+}
+
+.ica-results-image-holder img {
+    max-width: 400px;
+    width: 100%;
+    margin: auto;
+    padding: 10px;
+}
+
+.ica-results-holder {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.ica-result {
+    padding: 10px 30px;
+    border-radius: 25%;
+    border: 1px solid #ddd;
+    margin: 30px;
+}
+
+.ica-result > div {
+    padding: 5px;
+    text-align: center;
+}
+
+.ica-result > div > div {
+    width: 50px;
+    height: 50px;
+    margin: auto;
+    border-radius: 40%;
+}

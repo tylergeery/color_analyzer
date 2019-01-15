@@ -21,6 +21,9 @@ class FormHandler {
     }
 
     handleSubmit(url) {
+        $('.ica-results-image-holder')
+            .html(`<img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" alt="loading image" />`);
+
         this.gatherData()
             .then((data) => {
                 $.ajax({
@@ -30,6 +33,7 @@ class FormHandler {
                     url
                 })
                     .done((response) => {
+                        this.renderImage();
                         this.handleResults(response);
                     })
 
@@ -43,14 +47,19 @@ class FormHandler {
         let predictions = JSON.parse(response);
         let $resultsHolder = $('.ica-results-holder');
 
-        $resultsHolder.html("");
+        $resultsHolder.html('');
 
         predictions.map((p) => {
-            let html = `<div style='background-color: ${p.hex}'>${p.name} (${p.score})</div>`;
+            let score = Math.round(p.score * 100000) / 100000;
+            let subImage = `<div><div style='background-color: ${p.hex}'></div></div>`;
+            let contents = `<div>${score}<br />${p.name}</div>`;
+            let html = `<div class="ica-result">${subImage}${contents}</div>`;
 
             $resultsHolder.append(html);
         });
     }
+
+    renderImage() {}
 }
 
 class URLFormHandler extends FormHandler {
@@ -58,6 +67,14 @@ class URLFormHandler extends FormHandler {
         return Promise.resolve(JSON.stringify({
             url: this.$form.find('input[name="url"]').val()
         }));
+    }
+
+    renderImage() {
+        let $image = this.$form.find('input[name="url"]');
+        let src = $image.val();
+
+        $('.ica-results-image-holder')
+            .html(`<img src="${src}" alt="lookup image" />`);
     }
 }
 
@@ -73,6 +90,15 @@ class FileUploadFormHandler extends FormHandler {
             };
             reader.readAsBinaryString(this.$form.find('input')[0].files[0]);
         });
+    }
+
+    renderImage() {
+        var reader = new FileReader();
+        reader.onload = () => {
+            $('.ica-results-image-holder')
+                .html(`<img src="${reader.result}" alt="lookup image" />`);
+        };
+        reader.readAsDataURL(this.$form.find('input')[0].files[0]);
     }
 }
 
