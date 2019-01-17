@@ -6,6 +6,7 @@ authors = ["Tyler G <tyler@geerydev.com>"]
 [dependencies]
 base64 = "*"
 image = "*"
+multipart = "*"
 reqwest = "*"
 rocket = "0.4.0-rc.1"
 rocket_codegen = "0.4.0-rc.1"
