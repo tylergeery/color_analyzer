@@ -24,11 +24,42 @@ pub fn parse(colors: &mut HashMap<String, Color>) {
             Color {
                 hex: json.get(key).unwrap().to_string(),
                 rgb: vec![
-                    u64::from_str_radix(s.get(1..3).unwrap(), 16).unwrap(),
-                    u64::from_str_radix(s.get(3..5).unwrap(), 16).unwrap(),
-                    u64::from_str_radix(s.get(5..).unwrap(), 16).unwrap()
+                    u64::from_str_radix(s.get(0..2).unwrap(), 16).unwrap(),
+                    u64::from_str_radix(s.get(2..4).unwrap(), 16).unwrap(),
+                    u64::from_str_radix(s.get(4..).unwrap(), 16).unwrap()
                 ]
             }
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse() {
+        let mut colors: HashMap<String, Color> = HashMap::new();
+
+        parse(&mut colors);
+
+        let red = colors.get("red").unwrap();
+        let green = colors.get("green").unwrap();
+        let blue = colors.get("blue").unwrap();
+
+        assert!(red.rgb[0] == 255);
+        assert!(red.rgb[1] == 0);
+        assert!(red.rgb[2] == 0);
+        assert!(red.hex == "#FF0000");
+
+        assert!(green.rgb[0] == 0);
+        assert!(green.rgb[1] == 255);
+        assert!(green.rgb[2] == 0);
+        assert!(green.hex == "#00FF00");
+
+        assert!(blue.rgb[0] == 0);
+        assert!(blue.rgb[1] == 0);
+        assert!(blue.rgb[2] == 255);
+        assert!(blue.hex == "#0000FF");
     }
 }

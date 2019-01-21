@@ -91,9 +91,9 @@ fn submit(cont_type: &ContentType, data: Data) -> String {
 
     // analyze Image
     let image = image::load_from_memory(&contents).unwrap();
-    let mut color_map: HashMap<String, colors::Color> = HashMap::new();
     let mut predictions: Vec<analyze::Prediction> = Vec::new();
 
+    let mut color_map: HashMap<String, colors::Color> = HashMap::new();
     colors::parse(&mut color_map);
     analyze::predict(image, color_map, &mut predictions);
 
@@ -112,7 +112,6 @@ fn predict(request: Json<URLRequest>) -> String {
     let mut result = reqwest::get(&url[..]).unwrap();
     let mut buf: Vec<u8> = vec![];
     result.copy_to(&mut buf).unwrap();
-    println!("image contents: {:?}", buf);
 
     // analyze Image
     let image = image::load_from_memory(&buf).unwrap();

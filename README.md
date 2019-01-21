@@ -13,13 +13,18 @@ Feel free to test out the project [here](#TODO)
 - Parses base hex colors from server/src/colors.json
 - Output ordered list of colors based on individual pixel analysis
 
-## TODO
-- Use K-NN approach for determining dominant color
-- Add UI Option for prediction approach (i.e Euclidean Distance, K-NN)
-- Find a production home (GAE Flexible?)
-
 ## Up and Running
 ```bash
 docker build -t color_image .
 docker run -id -p 8080:8080 -v $(pwd)/server:/usr/src/app --name color color_image cargo watch -x run
 ```
+
+## Running test suite
+```bash
+docker exec -it color cargo test
+```
+
+## TODO
+- Use K-NN approach for determining dominant color
+- Add UI Option for prediction approach (i.e Euclidean Distance, K-NN)
+- Find a production home (GAE Flexible?)
