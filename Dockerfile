@@ -1,9 +1,9 @@
 FROM rustlang/rust:nightly
 
-ENV RUST_BACKTRACE 1
-RUN rustup update && \
-    cargo install cargo-watch
+RUN rustup update
 
 WORKDIR /usr/src/app
 
 EXPOSE 8080
+
+ENTRYPOINT ["cargo", "run"]

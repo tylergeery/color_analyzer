@@ -4,9 +4,9 @@ use colors::Color;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Prediction {
-    hex: String,
-    name: String,
-    score: f64
+    pub hex: String,
+    pub name: String,
+    pub score: f64
 }
 
 pub fn predict(
@@ -39,7 +39,7 @@ pub fn predict(
 
         pixel_count += 1;
         let s = winner.to_string();
-        let val = results.entry(s).or_insert(0);
+        let val = results.entry(s.clone()).or_insert(0);
         *val += 1;
     }
 

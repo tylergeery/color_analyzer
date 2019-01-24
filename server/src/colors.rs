@@ -32,34 +32,3 @@ pub fn parse(colors: &mut HashMap<String, Color>) {
         );
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse() {
-        let mut colors: HashMap<String, Color> = HashMap::new();
-
-        parse(&mut colors);
-
-        let red = colors.get("red").unwrap();
-        let green = colors.get("green").unwrap();
-        let blue = colors.get("blue").unwrap();
-
-        assert!(red.rgb[0] == 255);
-        assert!(red.rgb[1] == 0);
-        assert!(red.rgb[2] == 0);
-        assert!(red.hex == "#FF0000");
-
-        assert!(green.rgb[0] == 0);
-        assert!(green.rgb[1] == 255);
-        assert!(green.rgb[2] == 0);
-        assert!(green.hex == "#00FF00");
-
-        assert!(blue.rgb[0] == 0);
-        assert!(blue.rgb[1] == 0);
-        assert!(blue.rgb[2] == 255);
-        assert!(blue.hex == "#0000FF");
-    }
-}

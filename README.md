@@ -15,8 +15,9 @@ Feel free to test out the project [here](#TODO)
 
 ## Up and Running
 ```bash
-docker build -t color_image .
-docker run -id -p 8080:8080 -v $(pwd)/server:/usr/src/app --name color color_image cargo watch -x run
+docker build -t color_analyzer .
+docker build -t color_analyzer_dev -f Dockerfile.dev .
+docker run -id -p 8080:8080 -v $(pwd)/server:/usr/src/app --name color color_analyzer_dev
 ```
 
 ## Running test suite

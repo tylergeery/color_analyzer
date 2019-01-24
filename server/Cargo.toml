@@ -4,10 +4,10 @@ version = "0.2.0"
 authors = ["Tyler G <tyler@geerydev.com>"]
 
 [dependencies]
-base64 = "*"
-image = "*"
-multipart = "*"
-reqwest = "*"
+base64 = "0.9.*"
+image = "0.20.*"
+multipart = "0.15.*"
+reqwest = "0.9.*"
 rocket = "0.4.0-rc.1"
 rocket_codegen = "0.4.0-rc.1"
 serde = "1.0"
@@ -17,3 +17,8 @@ serde_json = "1.0"
 [dependencies.rocket_contrib]
 version = "0.4.0-rc.1"
 features = ["json", "handlebars_templates"]
+
+[[bin]]
+name = "server"
+path = "src/main.rs"
+test = false

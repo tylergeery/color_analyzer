@@ -127,6 +127,11 @@ fn predict(request: Json<URLRequest>) -> String {
     json_str
 }
 
+#[get("/")]
+fn health() -> String {
+    String::from("ok")
+}
+
 fn main() {
     rocket::ignite()
         .attach(Template::fairing())
@@ -135,5 +140,6 @@ fn main() {
         .mount("/upload", routes![upload])
         .mount("/submit", routes![submit])
         .mount("/predict", routes![predict])
+        .mount("/_ah/health", routes![health])
         .launch();
 }
