@@ -1,0 +1,7 @@
+FROM color_analyzer
+
+ENV RUST_BACKTRACE 1
+
+RUN cargo install cargo-watch
+
+ENTRYPOINT ["cargo", "watch", "-x", "run"]
