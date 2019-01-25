@@ -73,7 +73,6 @@ fn process_entries(entries: Entries, out: &mut Vec<u8>) {
     reader.read_to_end(out).unwrap();
 }
 
-
 #[get("/")]
 fn index() -> &'static str {
     "Welcome to the Image Color Analyzer API!"

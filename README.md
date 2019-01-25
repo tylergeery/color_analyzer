@@ -1,7 +1,7 @@
-# color_analyzer
+# Rust Color Analyzer
 Simple REST API for image color analysis.
 
-This is a first attempt at using Rust, and largely a learning experience. Please feel free to contribute.
+This is a first attempt at using Rust, and largely a learning experience. Please feel free to contribute and teach me a few things.
 
 ## Production
 Feel free to test out the project [here](https://rust-color-analyzer.appspot.com/upload)
@@ -18,7 +18,7 @@ Feel free to test out the project [here](https://rust-color-analyzer.appspot.com
 ```bash
 docker build -t color_analyzer .
 docker build -t color_analyzer_dev -f Dockerfile.dev .
-docker run -id -p 8080:8080 -v $(pwd)/server:/usr/src/app --name color color_analyzer_dev   
+docker run -id -p 8080:8080 -v $(pwd)/server:/usr/src/app --name color color_analyzer_dev
 ```
 
 ## Running test suite

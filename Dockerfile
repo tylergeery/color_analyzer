@@ -7,4 +7,5 @@ COPY ./server/ /usr/src/app
 
 EXPOSE 8080
 
-ENTRYPOINT ["cargo", "run"]
+RUN cargo build --release
+CMD cargo run --release
