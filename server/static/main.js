@@ -12,10 +12,15 @@ class FormHandler {
     constructor($form) {
         this.$form = $form;
 
-        $form.find('input')
-            .on('submit change', (e) => {
+        $form
+            .on('submit', (e) => {
                 e.preventDefault();
 
+                this.handleSubmit();
+            });
+
+        $form.find('input')
+            .on('change', (e) => {
                 this.handleSubmit();
             });
     }
