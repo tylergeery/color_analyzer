@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use image::DynamicImage;
+use image::{RgbaImage, imageops};
 use colors::Color;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -10,12 +10,11 @@ pub struct Prediction {
 }
 
 pub fn predict(
-    image: DynamicImage,
+    rgba_image: RgbaImage,
     colors: HashMap<String, Color>,
     predictions: &mut Vec<Prediction>
 ) {
     let mut results: HashMap<String, u64> = HashMap::new();
-    let rgba_image = image.to_rgba();
     let pixels = rgba_image.pixels();
     let mut pixel_count = 0;
     let mut winner = String::new();
@@ -52,6 +51,17 @@ pub fn predict(
     }
 
     predictions.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap());
+}
+
+pub fn center_image(mut img: RgbaImage) -> RgbaImage {
+    let dimensions = img.dimensions();
+    let x_offset: u32 = dimensions.0 / 4;
+    let y_offset: u32 = dimensions.1 / 4;
+    let x_length: u32 = dimensions.0 - (x_offset * 2);
+    let y_length: u32 = dimensions.1 - (y_offset * 2);
+    let result = imageops::crop(&mut img, x_offset, y_offset, x_length, y_length).to_image();
+
+    result
 }
 
 fn dist(base: u64, supplied: u64) -> u64 {

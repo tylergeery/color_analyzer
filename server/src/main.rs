@@ -18,7 +18,8 @@ mod colors;
 
 use std::collections::HashMap;
 use std::path::Path;
-use std::io::{self, Write, Read};
+use std::io::{self, Read};
+use std::str;
 use rocket::Data;
 use rocket::response::NamedFile;
 use rocket::http::ContentType;
@@ -32,7 +33,13 @@ use multipart::server::save::SaveResult::*;
 
 #[derive(FromForm, Deserialize)]
 struct URLRequest {
+    preference: String,
     url: String
+}
+
+struct FormRequest {
+    preference: String,
+    image: Vec<u8>
 }
 
 #[derive(Serialize)]
@@ -41,36 +48,43 @@ struct RequestError {
     error: String
 }
 
-fn process_upload(boundary: &str, data: Data) -> io::Result<Vec<u8>> {
-    let mut out = Vec::new();
+fn process_upload(boundary: &str, data: Data) -> io::Result<FormRequest> {
+    let mut request = FormRequest {
+        preference: String::from(""),
+        image: Vec::new()
+    };
 
     // saves all fields, any field longer than 10kB goes to a temporary directory
     // Entries could implement FromData though that would give zero control over
     // how the files are saved; Multipart would be a good impl candidate though
     match Multipart::with_body(data.open(), boundary).save().temp() {
-        Full(entries) => process_entries(entries, &mut out),
-        Partial(partial, reason) => {
-            writeln!(out, "Request partially processed: {:?}", reason)?;
-            if let Some(field) = partial.partial {
-                writeln!(out, "Stopped on field: {:?}", field.source.headers)?;
-            }
-
-            process_entries(partial.entries, &mut out)
+        Full(entries) => process_entries(entries, &mut request),
+        Partial(partial, _reason) => {
+            process_entries(partial.entries, &mut request)
         },
         Error(e) => return Err(e),
     }
 
-    Ok(out)
+    Ok(request)
 }
 
 // having a streaming output would be nice; there's one for returning a `Read` impl
 // but not one that you can `write()` to
-fn process_entries(entries: Entries, out: &mut Vec<u8>) {
-    let key = String::from("image");
-    let image = entries.fields.get(&key).unwrap();
-    let mut reader = image[0].data.readable().unwrap();
+fn process_entries(entries: Entries, out: &mut FormRequest) {
+    let img_key = String::from("image");
+    let pref_key = String::from("preference");
 
-    reader.read_to_end(out).unwrap();
+    let image = entries.fields.get(&img_key).unwrap();
+    let pref = entries.fields.get(&pref_key).unwrap();
+    let mut pref_vec: Vec<u8> = Vec::new();
+
+    let mut image_reader = image[0].data.readable().unwrap();
+    let mut pref_reader = pref[0].data.readable().unwrap();
+
+    image_reader.read_to_end(&mut out.image).unwrap();
+    pref_reader.read_to_end(&mut pref_vec).unwrap();
+
+    out.preference = str::from_utf8(&pref_vec).unwrap().to_string();
 }
 
 #[get("/")]
@@ -86,11 +100,18 @@ fn upload() -> Option<NamedFile> {
 #[post("/", format = "multipart/form-data", data="<data>")]
 fn submit(cont_type: &ContentType, data: Data) -> String {
     let (_, boundary) = cont_type.params().find(|&(k, _)| k == "boundary").unwrap();
-    let contents = process_upload(boundary, data).unwrap();
+    let form_request = process_upload(boundary, data).unwrap();
 
     // analyze Image
-    let image = image::load_from_memory(&contents).unwrap();
+    let mut image = image::load_from_memory(&form_request.image).unwrap().to_rgba();
     let mut predictions: Vec<analyze::Prediction> = Vec::new();
+
+    match form_request.preference.as_ref() {
+        "center" => {
+            image = analyze::center_image(image);
+        },
+        _ => {}
+    }
 
     let mut color_map: HashMap<String, colors::Color> = HashMap::new();
     colors::parse(&mut color_map);
@@ -105,7 +126,10 @@ fn submit(cont_type: &ContentType, data: Data) -> String {
 #[post("/", format = "application/json", data="<request>")]
 fn predict(request: Json<URLRequest>) -> String {
     // get file contents from url u
-    let url = request.into_inner().url;
+    let url_request = request.into_inner();
+    let url = url_request.url;
+    let preference = url_request.preference;
+
     println!("url: {}", &url[..]);
 
     let mut result = reqwest::get(&url[..]).unwrap();
@@ -113,9 +137,16 @@ fn predict(request: Json<URLRequest>) -> String {
     result.copy_to(&mut buf).unwrap();
 
     // analyze Image
-    let image = image::load_from_memory(&buf).unwrap();
+    let mut image = image::load_from_memory(&buf).unwrap().to_rgba();
     let mut color_map: HashMap<String, colors::Color> = HashMap::new();
     let mut predictions: Vec<analyze::Prediction> = Vec::new();
+
+    match preference.as_ref() {
+        "center" => {
+            image = analyze::center_image(image);
+        },
+        _ => {}
+    }
 
     colors::parse(&mut color_map);
     analyze::predict(image, color_map, &mut predictions);

@@ -33,6 +33,10 @@ class FormHandler {
         return this.$form.attr('action');
     }
 
+    getAnalyzePreference() {
+        return $('select[name="analyze_preference"]').val();
+    }
+
     handleSubmit() {
         $('.ica-results-image-holder')
             .html(`<img src="https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif" alt="loading image" />`);
@@ -83,7 +87,8 @@ class URLFormHandler extends FormHandler {
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({
-                url: imageURL
+                url: imageURL,
+                preference: this.getAnalyzePreference()
             }),
             url
         };
@@ -104,6 +109,9 @@ class FileUploadFormHandler extends FormHandler {
     gatherOptions() {
         let url = this.gatherURL();
         let data = new FormData(this.$form[0]);
+
+        data.append('preference', this.getAnalyzePreference());
+
         let options = {
             method: 'POST',
             contentType: 'multipart/form-data',

@@ -2,7 +2,7 @@ extern crate color_analyzer;
 extern crate image;
 
 use std::collections::HashMap;
-use color_analyzer::{predict, parse, Color, Prediction};
+use color_analyzer::{predict, parse, center_image, Color, Prediction};
 use image::Rgb;
 
 #[test]
@@ -70,10 +70,9 @@ fn test_predict() {
     let tmp = image::DynamicImage::ImageRgb8(test_image_buffer.clone());
 
     // When
-    predict(tmp, colors, &mut predictions);
+    predict(tmp.to_rgba(), colors, &mut predictions);
 
     // Then
-    println!("predictions: {:?}", predictions);
     assert!(predictions[0].name == "red");
     assert!(predictions[0].score > 0.5);
     assert!(predictions[0].hex == "#FF0000");
@@ -83,4 +82,20 @@ fn test_predict() {
     assert!(predictions[2].name == "green");
     assert!(predictions[2].score < 0.12);
     assert!(predictions[2].hex == "#00FF00");
+}
+
+#[test]
+fn test_center_image() {
+    // Given
+    let mut test_image = image::DynamicImage::new_rgb8(5, 5);
+    let test_image_buffer = test_image.as_mut_rgb8().unwrap();
+
+    let tmp = image::DynamicImage::ImageRgb8(test_image_buffer.clone());
+
+    // When
+    let result = center_image(tmp.to_rgba());
+
+    // Then
+    println!("dim: {:?}", result.dimensions());
+    assert!(result.dimensions() == (3, 3));
 }

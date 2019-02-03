@@ -13,6 +13,7 @@ Feel free to test out the project [here](https://rust-color-analyzer.appspot.com
 - Parses base hex colors from server/src/colors.json
 - Output ordered list of colors based on individual pixel analysis
 - Runs on GAE Flexible custom runtime
+- UI Option to predict based on middle of image (middle 50% of pixels)
 
 ## Up and Running
 ```bash
@@ -26,6 +27,9 @@ docker run -id -p 8080:8080 -v $(pwd)/server:/usr/src/app --name color color_ana
 docker exec -it color cargo test
 ```
 
+## Deploying
+
 ## TODO
-- Use K-NN approach for determining dominant color
-- Add UI Option for prediction approach (i.e Euclidean Distance, K-NN)
+- Add K-NN approach for determining dominant color
+- Run all prediction operations asynchronously
+- Explore Luma color pixels as an options

@@ -6,7 +6,7 @@ mod colors;
 mod analyze;
 
 use std::collections::HashMap;
-use image::DynamicImage;
+use image::{RgbaImage};
 pub use colors::Color;
 pub use analyze::Prediction;
 
@@ -15,9 +15,13 @@ pub fn parse(color_map: &mut HashMap<String, Color>) {
 }
 
 pub fn predict(
-    image: DynamicImage,
+    image: RgbaImage,
     colors: HashMap<String, Color>,
     predictions: &mut Vec<Prediction>
 ) {
     analyze::predict(image, colors, predictions)
+}
+
+pub fn center_image(image: RgbaImage) -> RgbaImage {
+    analyze::center_image(image)
 }
