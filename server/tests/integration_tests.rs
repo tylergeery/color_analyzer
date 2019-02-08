@@ -2,7 +2,7 @@ extern crate color_analyzer;
 extern crate image;
 
 use std::collections::HashMap;
-use color_analyzer::{predict, parse, center_image, Color, Prediction};
+use color_analyzer::{predict, predict_cluster, parse, center_image, Color, Prediction};
 use image::Rgb;
 
 #[test]
@@ -96,6 +96,58 @@ fn test_center_image() {
     let result = center_image(tmp.to_rgba());
 
     // Then
-    println!("dim: {:?}", result.dimensions());
     assert!(result.dimensions() == (3, 3));
+}
+
+#[test]
+fn test_predict_cluster() {
+    // Given
+    let mut test_image = image::DynamicImage::new_rgb8(3, 3);
+    let test_image_buffer = test_image.as_mut_rgb8().unwrap();
+    let mut colors: HashMap<String, Color> = HashMap::new();
+    let mut predictions: Vec<Prediction> = Vec::new();
+
+    colors.insert(
+        String::from("red"),
+        Color { hex: String::from("#FF0000"), rgb: vec![255, 0, 0]}
+    );
+    colors.insert(
+        String::from("green"),
+        Color { hex: String::from("#00FF00"), rgb: vec![0, 255, 0]}
+    );
+    colors.insert(
+        String::from("blue"),
+        Color { hex: String::from("#0000FF"), rgb: vec![0, 0, 255]}
+    );
+
+    // set corners to red
+    test_image_buffer.put_pixel(0, 0, Rgb { data: [230, 10, 10] });
+    test_image_buffer.put_pixel(0, 2, Rgb { data: [255, 0, 50] });
+    test_image_buffer.put_pixel(2, 2, Rgb { data: [230, 0, 0] });
+    test_image_buffer.put_pixel(2, 0, Rgb { data: [230, 0, 0] });
+
+    // AsRef 3 middle pixels to green
+    test_image_buffer.put_pixel(0, 1, Rgb { data: [40, 240, 40] });
+    test_image_buffer.put_pixel(1, 1, Rgb { data: [230, 250, 0] });
+    test_image_buffer.put_pixel(2, 1, Rgb { data: [130, 200, 0] });
+
+    // set remainder to blue
+    test_image_buffer.put_pixel(1, 0, Rgb { data: [155, 165, 200] });
+    test_image_buffer.put_pixel(1, 2, Rgb { data: [155, 165, 200] });
+
+    let tmp = image::DynamicImage::ImageRgb8(test_image_buffer.clone());
+
+    // When
+    predict_cluster(tmp.to_rgba(), colors, &mut predictions);
+
+    // Then
+    assert!(predictions[0].name == "green");
+    assert!(predictions[0].score > 0.5);
+    assert!(predictions[0].hex == "#00FF00");
+    assert!(predictions[1].name == "red");
+    assert!(predictions[1].score > 0.3 && predictions[1].score < 0.33);
+    assert!(predictions[1].hex == "#FF0000");
+    assert!(predictions[2].name == "blue");
+    assert!(predictions[2].score < 0.16);
+    assert!(predictions[2].hex == "#0000FF");
 }
