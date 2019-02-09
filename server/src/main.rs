@@ -33,12 +33,10 @@ use multipart::server::save::SaveResult::*;
 
 #[derive(FromForm, Deserialize)]
 struct URLRequest {
-    preference: String,
     url: String
 }
 
 struct FormRequest {
-    preference: String,
     image: Vec<u8>
 }
 
@@ -50,7 +48,6 @@ struct RequestError {
 
 fn process_upload(boundary: &str, data: Data) -> io::Result<FormRequest> {
     let mut request = FormRequest {
-        preference: String::from(""),
         image: Vec::new()
     };
 
@@ -72,19 +69,11 @@ fn process_upload(boundary: &str, data: Data) -> io::Result<FormRequest> {
 // but not one that you can `write()` to
 fn process_entries(entries: Entries, out: &mut FormRequest) {
     let img_key = String::from("image");
-    let pref_key = String::from("preference");
 
     let image = entries.fields.get(&img_key).unwrap();
-    let pref = entries.fields.get(&pref_key).unwrap();
-    let mut pref_vec: Vec<u8> = Vec::new();
-
     let mut image_reader = image[0].data.readable().unwrap();
-    let mut pref_reader = pref[0].data.readable().unwrap();
 
     image_reader.read_to_end(&mut out.image).unwrap();
-    pref_reader.read_to_end(&mut pref_vec).unwrap();
-
-    out.preference = str::from_utf8(&pref_vec).unwrap().to_string();
 }
 
 #[get("/")]
@@ -97,25 +86,43 @@ fn upload() -> Option<NamedFile> {
     NamedFile::open(Path::new("static/").join("index.html")).ok()
 }
 
+fn run_predictions(rgba_image: image::RgbaImage) -> Vec<Vec<analyze::Prediction>> {
+    let mut color_map: HashMap<String, colors::Color> = HashMap::new();
+    let prediction_types = vec!("rgb", "rgb_center", "rgb_neighbor");
+    let mut results: Vec<Vec<analyze::Prediction>> = Vec::new();
+
+    colors::parse(&mut color_map);
+
+    // TODO: add concurrency
+    for pt in &prediction_types {
+        let mut predictions: Vec<analyze::Prediction> = Vec::new();
+
+        match pt.as_ref() {
+            "rgb_neighbor" => {
+                analyze::predict_cluster(rgba_image.clone(), &color_map, &mut predictions);
+            },
+            "rgb_center" => {
+                let centered = analyze::center_image(rgba_image.clone());
+                analyze::predict(centered, &color_map, &mut predictions)
+            },
+            _ => {
+                analyze::predict(rgba_image.clone(), &color_map, &mut predictions);
+            },
+        };
+        results.push(predictions);
+    }
+
+    results
+}
+
 #[post("/", format = "multipart/form-data", data="<data>")]
 fn submit(cont_type: &ContentType, data: Data) -> String {
     let (_, boundary) = cont_type.params().find(|&(k, _)| k == "boundary").unwrap();
     let form_request = process_upload(boundary, data).unwrap();
 
     // analyze Image
-    let mut image = image::load_from_memory(&form_request.image).unwrap().to_rgba();
-    let mut predictions: Vec<analyze::Prediction> = Vec::new();
-
-    match form_request.preference.as_ref() {
-        "center" => {
-            image = analyze::center_image(image);
-        },
-        _ => {}
-    }
-
-    let mut color_map: HashMap<String, colors::Color> = HashMap::new();
-    colors::parse(&mut color_map);
-    analyze::predict(image, color_map, &mut predictions);
+    let image = image::load_from_memory(&form_request.image).unwrap().to_rgba();
+    let predictions = run_predictions(image);
 
     let json = json!(predictions);
     let json_str = json.to_string();
@@ -128,7 +135,6 @@ fn predict(request: Json<URLRequest>) -> String {
     // get file contents from url u
     let url_request = request.into_inner();
     let url = url_request.url;
-    let preference = url_request.preference;
 
     println!("url: {}", &url[..]);
 
@@ -137,19 +143,8 @@ fn predict(request: Json<URLRequest>) -> String {
     result.copy_to(&mut buf).unwrap();
 
     // analyze Image
-    let mut image = image::load_from_memory(&buf).unwrap().to_rgba();
-    let mut color_map: HashMap<String, colors::Color> = HashMap::new();
-    let mut predictions: Vec<analyze::Prediction> = Vec::new();
-
-    match preference.as_ref() {
-        "center" => {
-            image = analyze::center_image(image);
-        },
-        _ => {}
-    }
-
-    colors::parse(&mut color_map);
-    analyze::predict(image, color_map, &mut predictions);
+    let image = image::load_from_memory(&buf).unwrap().to_rgba();
+    let predictions = run_predictions(image);
 
     let json = json!(predictions);
     let json_str = json.to_string();

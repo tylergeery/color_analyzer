@@ -19,7 +19,7 @@ pub fn predict(
     colors: HashMap<String, Color>,
     predictions: &mut Vec<Prediction>
 ) {
-    analyze::predict(image, colors, predictions)
+    analyze::predict(image, &colors, predictions)
 }
 
 pub fn predict_cluster(
@@ -27,7 +27,7 @@ pub fn predict_cluster(
     colors: HashMap<String, Color>,
     predictions: &mut Vec<Prediction>
 ) {
-    analyze::predict_cluster(image, colors, predictions)
+    analyze::predict_cluster(image, &colors, predictions)
 }
 
 pub fn center_image(image: RgbaImage) -> RgbaImage {

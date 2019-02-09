@@ -1,6 +1,9 @@
+let selectedIndex = 0;
+
 class FormHandler {
     constructor($form) {
         this.$form = $form;
+        this.results = [];
 
         $form
             .on('submit', (e) => {
@@ -51,11 +54,35 @@ class FormHandler {
     }
 
     handleResults(response) {
-        let predictions = JSON.parse(response);
+        this.results = JSON.parse(response);
+        let $tabsHolder = $('.ica-results-tabs-holder');
+
+        $tabsHolder.html(
+            [
+                [`Pixel`, 0],
+                [`Image Center`, 1],
+                [`Cluster`, 2]
+            ].map(tab => {
+                return `<div class="ica-tab-button-holder" data-indy=${tab[1]}>
+                    <button type="button">${tab[0]}</button>
+                </div>`;
+            }).join('')
+        );
+
+        let self = this;
+        this.renderResults(this.results[selectedIndex]);
+        $(`.ica-tab-button-holder`).on('click', function () {
+            selectedIndex = $(this).data('indy');
+            self.renderResults(self.results[selectedIndex]);
+        });
+    }
+
+    renderImage() {}
+
+    renderResults(predictions) {
         let $resultsHolder = $('.ica-results-holder');
 
         $resultsHolder.html('');
-
         predictions.map((p) => {
             let score = Math.round(p.score * 100000) / 100000;
             let subImage = `<div><div style='background-color: ${p.hex}'></div></div>`;
@@ -65,8 +92,6 @@ class FormHandler {
             $resultsHolder.append(html);
         });
     }
-
-    renderImage() {}
 }
 
 class URLFormHandler extends FormHandler {

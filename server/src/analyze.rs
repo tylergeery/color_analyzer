@@ -12,7 +12,7 @@ pub struct Prediction {
 
 pub fn predict(
     rgba_image: RgbaImage,
-    colors: HashMap<String, Color>,
+    colors: &HashMap<String, Color>,
     predictions: &mut Vec<Prediction>
 ) {
     let mut results: HashMap<String, u64> = HashMap::new();
@@ -51,7 +51,7 @@ pub fn center_image(mut img: RgbaImage) -> RgbaImage {
 
 pub fn predict_cluster(
     rgba_image: RgbaImage,
-    colors: HashMap<String, Color>,
+    colors: &HashMap<String, Color>,
     predictions: &mut Vec<Prediction>
 ) {
     let mut results: HashMap<String, u64> = HashMap::new();

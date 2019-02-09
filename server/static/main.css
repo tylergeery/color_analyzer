@@ -74,3 +74,23 @@ body {
     margin: auto;
     border-radius: 40%;
 }
+
+.ica-results-tabs-holder {
+    display: flex;
+    flex-direction: row;
+}
+
+.ica-tab-button-holder {
+    width: 25%;
+}
+
+.ica-tab-button-holder button {
+     background: none !important;
+     color: inherit;
+     border: none;
+     padding: 1em !important;
+     font: inherit;
+     /*border is optional*/
+     border-bottom: 1px solid #444;
+     cursor: pointer;
+}
