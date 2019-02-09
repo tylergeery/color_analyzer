@@ -88,8 +88,9 @@ fn upload() -> Option<NamedFile> {
 
 fn run_predictions(rgba_image: image::RgbaImage) -> Vec<Vec<analyze::Prediction>> {
     let mut color_map: HashMap<String, colors::Color> = HashMap::new();
-    let prediction_types = vec!("rgb", "rgb_center", "rgb_neighbor");
+    let prediction_types = vec!("rgb", "rgb_center", "cluster", "cluster_center");
     let mut results: Vec<Vec<analyze::Prediction>> = Vec::new();
+    let centered = analyze::center_image(rgba_image.clone());
 
     colors::parse(&mut color_map);
 
@@ -102,8 +103,10 @@ fn run_predictions(rgba_image: image::RgbaImage) -> Vec<Vec<analyze::Prediction>
                 analyze::predict_cluster(rgba_image.clone(), &color_map, &mut predictions);
             },
             "rgb_center" => {
-                let centered = analyze::center_image(rgba_image.clone());
-                analyze::predict(centered, &color_map, &mut predictions)
+                analyze::predict(centered.clone(), &color_map, &mut predictions)
+            },
+            "cluster_center" => {
+                analyze::predict_cluster(centered.clone(), &color_map, &mut predictions)
             },
             _ => {
                 analyze::predict(rgba_image.clone(), &color_map, &mut predictions);

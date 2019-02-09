@@ -60,8 +60,9 @@ class FormHandler {
         $tabsHolder.html(
             [
                 [`Pixel`, 0],
-                [`Image Center`, 1],
-                [`Cluster`, 2]
+                [`Center`, 1],
+                [`Cluster`, 2],
+                [`P & C`, 3],
             ].map(tab => {
                 return `<div class="ica-tab-button-holder" data-indy=${tab[1]}>
                     <button type="button">${tab[0]}</button>
