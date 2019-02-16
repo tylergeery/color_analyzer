@@ -4,13 +4,14 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Color {
     pub rgb: Vec<u64>,
     pub hex: String
 }
 
-pub fn parse(colors: &mut HashMap<String, Color>) {
+pub fn parse() -> HashMap<String, Color> {
+    let mut colors: HashMap<String, Color> = HashMap::new();
     let mut file = File::open("/usr/src/app/src/colors.json").unwrap();
     let mut data = String::new();
     file.read_to_string(&mut data).unwrap();
@@ -31,4 +32,6 @@ pub fn parse(colors: &mut HashMap<String, Color>) {
             }
         );
     }
+
+    colors
 }

@@ -10,8 +10,8 @@ use image::{RgbaImage};
 pub use colors::Color;
 pub use analyze::Prediction;
 
-pub fn parse(color_map: &mut HashMap<String, Color>) {
-    colors::parse(color_map)
+pub fn parse() -> HashMap<String, Color> {
+    colors::parse()
 }
 
 pub fn predict(

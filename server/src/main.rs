@@ -16,10 +16,12 @@ extern crate base64;
 mod analyze;
 mod colors;
 
-use std::collections::HashMap;
 use std::path::Path;
 use std::io::{self, Read};
 use std::str;
+use std::sync::Arc;
+use std::sync::mpsc::{channel, Receiver};
+use std::thread::spawn;
 use rocket::Data;
 use rocket::response::NamedFile;
 use rocket::http::ContentType;
@@ -87,32 +89,45 @@ fn upload() -> Option<NamedFile> {
 }
 
 fn run_predictions(rgba_image: image::RgbaImage) -> Vec<Vec<analyze::Prediction>> {
-    let mut color_map: HashMap<String, colors::Color> = HashMap::new();
     let prediction_types = vec!("rgb", "rgb_center", "cluster", "cluster_center");
     let mut results: Vec<Vec<analyze::Prediction>> = Vec::new();
     let centered = analyze::center_image(rgba_image.clone());
+    let mut receivers: Vec<Receiver<Vec<analyze::Prediction>>> = Vec::new();
 
-    colors::parse(&mut color_map);
+    let color_map = Arc::new(colors::parse());
 
     // TODO: add concurrency
-    for pt in &prediction_types {
-        let mut predictions: Vec<analyze::Prediction> = Vec::new();
+    for pt in prediction_types {
+        let (tx, rx) = channel();
+        let rgba_img = rgba_image.clone();
+        let cntr_img = centered.clone();
+        let map_reference = color_map.clone();
+        receivers.push(rx);
 
-        match pt.as_ref() {
-            "rgb_neighbor" => {
-                analyze::predict_cluster(rgba_image.clone(), &color_map, &mut predictions);
-            },
-            "rgb_center" => {
-                analyze::predict(centered.clone(), &color_map, &mut predictions)
-            },
-            "cluster_center" => {
-                analyze::predict_cluster(centered.clone(), &color_map, &mut predictions)
-            },
-            _ => {
-                analyze::predict(rgba_image.clone(), &color_map, &mut predictions);
-            },
-        };
-        results.push(predictions);
+        let _hd = spawn(move || {
+            let mut predictions: Vec<analyze::Prediction> = Vec::new();
+
+            match pt.as_ref() {
+                "rgb_center" => {
+                    analyze::predict(cntr_img, &map_reference, &mut predictions)
+                },
+                "cluster" => {
+                    analyze::predict_cluster(rgba_img, &map_reference, &mut predictions);
+                },
+                "cluster_center" => {
+                    analyze::predict_cluster(cntr_img, &map_reference, &mut predictions)
+                },
+                _ => {
+                    analyze::predict(rgba_img, &map_reference, &mut predictions);
+                },
+            };
+
+            tx.send(predictions).unwrap();
+        });
+    }
+
+    for recv in &receivers {
+        results.push(recv.recv().unwrap());
     }
 
     results

@@ -7,9 +7,7 @@ use image::Rgb;
 
 #[test]
 fn test_parse() {
-    let mut colors: HashMap<String, Color> = HashMap::new();
-
-    parse(&mut colors);
+    let colors = parse();
 
     let red = colors.get("red").unwrap();
     let green = colors.get("green").unwrap();
