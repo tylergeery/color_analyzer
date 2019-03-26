@@ -30,7 +30,8 @@ docker exec -it color cargo test
 ## Deploying
 ```bash
 docker tag color_analyzer:latest us.gcr.io/rust-color-analyzer/color_analyzer
-gcloud docker -- push us.gcr.io/rust-color-analyzer/color_analyzer
+gcloud auth configure-docker
+docker push us.gcr.io/rust-color-analyzer/color_analyzer
 gcloud app deploy --image-url=us.gcr.io/rust-color-analyzer/color_analyzer app.yaml
 ```
 
