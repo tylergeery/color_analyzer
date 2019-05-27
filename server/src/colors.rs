@@ -19,7 +19,7 @@ pub fn parse() -> HashMap<String, Color> {
     let json: HashMap<String, String> = serde_json::from_str(&data[..]).unwrap();
 
     for key in json.keys() {
-        let s = json.get(key).unwrap().trim_left_matches('#');
+        let s = json.get(key).unwrap().trim_start_matches('#');
         colors.insert(
             key.to_string(),
             Color {

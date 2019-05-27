@@ -1,11 +1,10 @@
 FROM color_analyzer
 
-ENV RUST_BACKTRACE 1
-
-# RUN rustup update && \
-#     rustup self update && \
-#     rustup component add clippy --toolchain=nightly || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
+RUN rustup update && \
+    rustup self update && \
+    rustup component add clippy --toolchain=nightly || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
 
 RUN cargo install cargo-watch
 
+ENV RUST_BACKTRACE 1
 ENTRYPOINT ["cargo", "watch", "-x", "run"]

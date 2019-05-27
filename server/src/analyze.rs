@@ -31,7 +31,7 @@ pub fn predict(
         predictions.push(Prediction {
             hex: colors.get(color).unwrap().hex.clone(),
             name: color.clone(),
-            score: (*results.get(color).unwrap() as f64) / (pixel_count as f64)
+            score: (*results.get(color).unwrap() as f64) / f64::from(pixel_count)
         });
     }
 
@@ -44,9 +44,8 @@ pub fn center_image(mut img: RgbaImage) -> RgbaImage {
     let y_offset: u32 = dimensions.1 / 4;
     let x_length: u32 = dimensions.0 - (x_offset * 2);
     let y_length: u32 = dimensions.1 - (y_offset * 2);
-    let result = imageops::crop(&mut img, x_offset, y_offset, x_length, y_length).to_image();
 
-    result
+    imageops::crop(&mut img, x_offset, y_offset, x_length, y_length).to_image()
 }
 
 pub fn predict_cluster(
@@ -89,7 +88,7 @@ pub fn predict_cluster(
 }
 
 fn dist(base: u64, supplied: u64) -> u64 {
-    return if base > supplied { base - supplied } else { supplied - base }
+    if base > supplied { base - supplied } else { supplied - base }
 }
 
 fn get_closest_color(pix: Rgba<u8>, colors: &HashMap<String, Color>) -> String
@@ -116,33 +115,25 @@ fn get_closest_color(pix: Rgba<u8>, colors: &HashMap<String, Color>) -> String
 
 fn get_neighboring_count(
     i: usize,
-    winners: &Vec<String>,
+    winners: &[String],
     dimensions: (u32, u32)
 ) -> u64 {
     let mut count = 0;
 
-    if ((i as u32) % dimensions.0) != 0 {
-        if winners[i] == winners[i-1] {
-            count += 1;
-        }
+    if ((i as u32) % dimensions.0) != 0 && winners[i] == winners[i-1] {
+        count += 1;
     }
 
-    if (i as u32) >= dimensions.1 {
-        if winners[i] == winners[i - (dimensions.1 as usize)] {
-            count += 1;
-        }
+    if (i as u32) >= dimensions.1 && winners[i] == winners[i - (dimensions.1 as usize)] {
+        count += 1;
     }
 
-    if ((i as u32) % dimensions.0) != (dimensions.0 - 1) {
-        if winners[i] == winners[i+1] {
-            count += 1;
-        }
+    if ((i as u32) % dimensions.0) != (dimensions.0 - 1) && winners[i] == winners[i+1] {
+        count += 1;
     }
 
-    if (i as u32) < (dimensions.0 * (dimensions.1 - 1))  {
-        if winners[i] == winners[i + (dimensions.0 as usize)] {
-            count += 1;
-        }
+    if (i as u32) < (dimensions.0 * (dimensions.1 - 1)) && winners[i] == winners[i + (dimensions.0 as usize)] {
+        count += 1;
     }
 
     count

@@ -1,9 +1,10 @@
-#![feature(plugin, proc_macro_hygiene, decl_macro, custom_derive)]
+#![feature(plugin, proc_macro_hygiene, decl_macro)]
 
 #[macro_use] extern crate rocket;
 extern crate rocket_contrib;
 extern crate image;
 extern crate multipart;
+// extern crate cpuprofiler;
 
 #[macro_use]
 extern crate serde_derive;
@@ -15,6 +16,7 @@ extern crate base64;
 
 mod analyze;
 mod colors;
+// use cpuprofiler::PROFILER;
 
 use std::path::Path;
 use std::io::{self, Read};
@@ -96,7 +98,6 @@ fn run_predictions(rgba_image: image::RgbaImage) -> Vec<Vec<analyze::Prediction>
 
     let color_map = Arc::new(colors::parse());
 
-    // TODO: add concurrency
     for pt in prediction_types {
         let (tx, rx) = channel();
         let rgba_img = rgba_image.clone();
@@ -107,7 +108,7 @@ fn run_predictions(rgba_image: image::RgbaImage) -> Vec<Vec<analyze::Prediction>
         let _hd = spawn(move || {
             let mut predictions: Vec<analyze::Prediction> = Vec::new();
 
-            match pt.as_ref() {
+            match pt {
                 "rgb_center" => {
                     analyze::predict(cntr_img, &map_reference, &mut predictions)
                 },
@@ -143,9 +144,8 @@ fn submit(cont_type: &ContentType, data: Data) -> String {
     let predictions = run_predictions(image);
 
     let json = json!(predictions);
-    let json_str = json.to_string();
 
-    json_str
+    json.to_string()
 }
 
 #[post("/", format = "application/json", data="<request>")]
@@ -160,14 +160,17 @@ fn predict(request: Json<URLRequest>) -> String {
     let mut buf: Vec<u8> = vec![];
     result.copy_to(&mut buf).unwrap();
 
+    // PROFILER.lock().unwrap().start("/usr/src/app/profile/analyze").unwrap();
+
     // analyze Image
     let image = image::load_from_memory(&buf).unwrap().to_rgba();
     let predictions = run_predictions(image);
 
-    let json = json!(predictions);
-    let json_str = json.to_string();
+    // PROFILER.lock().unwrap().stop().unwrap();
 
-    json_str
+    let json = json!(predictions);
+
+    json.to_string()
 }
 
 #[get("/")]
