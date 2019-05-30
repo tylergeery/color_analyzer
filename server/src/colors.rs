@@ -1,5 +1,7 @@
 extern crate serde_json;
+extern crate fnv;
 
+use self::fnv::FnvHashMap;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Read;
@@ -10,8 +12,8 @@ pub struct Color {
     pub hex: String
 }
 
-pub fn parse() -> HashMap<String, Color> {
-    let mut colors: HashMap<String, Color> = HashMap::new();
+pub fn parse() -> FnvHashMap<String, Color> {
+    let mut colors: FnvHashMap<String, Color> = FnvHashMap::default();
     let mut file = File::open("/usr/src/app/src/colors.json").unwrap();
     let mut data = String::new();
     file.read_to_string(&mut data).unwrap();

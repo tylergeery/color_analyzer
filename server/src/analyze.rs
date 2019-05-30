@@ -10,9 +10,9 @@ pub struct Prediction {
     pub score: f64
 }
 
-pub fn predict(
+pub fn predict<S: ::std::hash::BuildHasher>(
     rgba_image: RgbaImage,
-    colors: &HashMap<String, Color>,
+    colors: &HashMap<String, Color, S>,
     predictions: &mut Vec<Prediction>
 ) {
     let mut results: HashMap<String, u64> = HashMap::new();
@@ -48,9 +48,9 @@ pub fn center_image(mut img: RgbaImage) -> RgbaImage {
     imageops::crop(&mut img, x_offset, y_offset, x_length, y_length).to_image()
 }
 
-pub fn predict_cluster(
+pub fn predict_cluster<S: ::std::hash::BuildHasher>(
     rgba_image: RgbaImage,
-    colors: &HashMap<String, Color>,
+    colors: &HashMap<String, Color, S>,
     predictions: &mut Vec<Prediction>
 ) {
     let mut results: HashMap<String, u64> = HashMap::new();
@@ -91,7 +91,7 @@ fn dist(base: u64, supplied: u64) -> u64 {
     if base > supplied { base - supplied } else { supplied - base }
 }
 
-fn get_closest_color(pix: Rgba<u8>, colors: &HashMap<String, Color>) -> String
+fn get_closest_color<S: ::std::hash::BuildHasher>(pix: Rgba<u8>, colors: &HashMap<String, Color, S>) -> String
 {
     let mut curr: f64 = 1000.0;
     let red = u64::from(pix.data[0]);

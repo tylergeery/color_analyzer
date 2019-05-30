@@ -6,6 +6,7 @@ authors = ["Tyler G <tyler@geerydev.com>"]
 [dependencies]
 base64 = "0.9.*"
 cpuprofiler = "0.0.3"
+fnv = "1.0.3"
 image = "0.20.*"
 multipart = "0.15.*"
 reqwest = "0.9.*"

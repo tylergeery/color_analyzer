@@ -1,6 +1,9 @@
 extern crate image;
 #[macro_use]
 extern crate serde_derive;
+extern crate fnv;
+
+use self::fnv::FnvHashMap;
 
 mod colors;
 mod analyze;
@@ -10,21 +13,21 @@ use image::{RgbaImage};
 pub use colors::Color;
 pub use analyze::Prediction;
 
-pub fn parse() -> HashMap<String, Color> {
+pub fn parse() -> FnvHashMap<String, Color> {
     colors::parse()
 }
 
-pub fn predict(
+pub fn predict<S: ::std::hash::BuildHasher>(
     image: RgbaImage,
-    colors: HashMap<String, Color>,
+    colors: HashMap<String, Color, S>,
     predictions: &mut Vec<Prediction>
 ) {
     analyze::predict(image, &colors, predictions)
 }
 
-pub fn predict_cluster(
+pub fn predict_cluster<S: ::std::hash::BuildHasher>(
     image: RgbaImage,
-    colors: HashMap<String, Color>,
+    colors: HashMap<String, Color, S>,
     predictions: &mut Vec<Prediction>
 ) {
     analyze::predict_cluster(image, &colors, predictions)
