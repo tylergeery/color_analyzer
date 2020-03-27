@@ -1,6 +1,6 @@
 [package]
 name = "color_analyzer"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Tyler G <tyler@geerydev.com>"]
 
 [dependencies]
@@ -9,7 +9,7 @@ cpuprofiler = "0.0.3"
 image = "0.20.*"
 multipart = "0.15.*"
 reqwest = "0.9.*"
-rocket = "0.4.0-rc.1"
+rocket = "0.4.4"
 rocket_codegen = "0.4.0-rc.1"
 serde = "1.0"
 serde_derive = "1.0"

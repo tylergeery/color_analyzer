@@ -17,9 +17,7 @@ Feel free to test out the project [here](https://rust-color-analyzer.appspot.com
 
 ## Up and Running
 ```bash
-docker build -t color_analyzer .
-docker build -t color_analyzer_dev -f Dockerfile.dev .
-docker run -id -p 8080:8080 -v $(pwd)/server:/usr/src/app --name color color_analyzer_dev
+make dev
 ```
 
 ## Running test suite
