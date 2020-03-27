@@ -18,3 +18,6 @@ dev: dev-image dev-kill
 dev-kill:
 	- docker stop $(container_dev)
 	- docker rm $(container_dev)
+
+test:
+	docker exec -it color $(container_dev) cargo test

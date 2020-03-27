@@ -1,15 +1,15 @@
 # Rust Color Analyzer
-Simple REST API for image color analysis.
+Simple API for image color analysis.
 
 This is a first attempt at using Rust, and largely a learning experience. Please feel free to contribute and teach me a few things.
 
 ## Production
-Feel free to test out the project [here](https://rust-color-analyzer.appspot.com/upload)
+Feel free to test out the project [here](https://rust-color-analyzer.geerydev.com/upload)
 
 ## Features
-- Submit a hosted URL or file upload at [upload page](https://rust-color-analyzer.appspot.com/upload)
-- Allows for image url submission at [predict endpoint](https://rust-color-analyzer.appspot.com/predict)
-- Allows for form data submission at [submit endpoint](https://rust-color-analyzer.appspot.com/submit)
+- Submit a hosted URL or file upload at [upload page](https://rust-color-analyzer.geerydev.com/upload)
+- Allows for image url submission at [predict endpoint](https://rust-color-analyzer.geerydev.com/predict)
+- Allows for form data submission at [submit endpoint](https://rust-color-analyzer.geerydev.com/submit)
 - Parses base hex colors from server/src/colors.json
 - Output ordered list of colors based on individual pixel analysis
 - Runs on GAE Flexible custom runtime
@@ -22,10 +22,10 @@ make dev
 
 ## Running test suite
 ```bash
-docker exec -it color cargo test
+make test
 ```
 
-## Deploying
+## Deprecated: Deploying on GAE
 ```bash
 docker tag color_analyzer:latest us.gcr.io/rust-color-analyzer/color_analyzer
 gcloud auth configure-docker
